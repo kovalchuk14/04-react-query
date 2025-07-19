@@ -1,7 +1,7 @@
 //import { useState } from 'react'
 import './App.module.css'
 import SearchBar from '../SearchBar/SearchBar';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import fetchMovies from '../../services/movieService';
 import type { Movie } from '../../types/movie';
 import MovieGrid from '../MovieGrid/MovieGrid';
@@ -19,12 +19,16 @@ function App() {
   const [currentPage, setCurrentPage] = useState(1);
   const [title, setTitle] = useState("");
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, isSuccess } = useQuery({
     queryKey: ["request", title, currentPage],
     queryFn: () => fetchMovies(title, currentPage),
     enabled: title !== "",
     placeholderData: keepPreviousData,
   });
+
+  useEffect(() => {
+    if(data?.results.length === 0)  toast.error("There is no movie, please try something other");
+  },[isSuccess]);
 
   const totalPages = data?.total_pages ?? 0;
 
@@ -34,7 +38,6 @@ function App() {
     setTitle(title);
     setCurrentPage(1);
 
-    if (data && data.results.length === 0) toast.error("there is no movie");
   }
 
   function openCard(movie: Movie) {
@@ -53,7 +56,7 @@ function App() {
         reverseOrder={false}
       />
       <SearchBar onSubmit={handleSubmit} />
-      {totalPages > 1 && <ReactPaginate
+      {isSuccess && totalPages > 1 && <ReactPaginate
         pageCount={totalPages}
         pageRangeDisplayed={5}
         marginPagesDisplayed={1}

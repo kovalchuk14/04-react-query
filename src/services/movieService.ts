@@ -8,7 +8,7 @@ interface MoviesHttpResponse {
   total_results: number;
 }
 
-export default async function fetchMovies(title: string, page: number) {
+export default async function fetchMovies(title: string, page: number):Promise<MoviesHttpResponse> {
     const response = await axios.get<MoviesHttpResponse>(`https://api.themoviedb.org/3/search/movie`, {
         params: {
             query: title,
